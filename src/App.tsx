@@ -17,7 +17,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter basename="/experience-portfolio">
         <div className="bg-navy min-h-screen">
           <Navbar />
           <Routes>
