@@ -1,8 +1,31 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Hero = () => {
+  const { data: profile, isLoading } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .maybeSingle();
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-navy">
+        <div className="text-lightSlate">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-navy px-6">
       <div className="max-w-4xl">
@@ -12,7 +35,7 @@ const Hero = () => {
           transition={{ duration: 0.5 }}
           className="text-4xl md:text-6xl font-bold text-lightestSlate mb-6"
         >
-          AWS Full Stack Developer
+          {profile?.title || "Full Stack Developer"}
         </motion.h1>
         
         <motion.p
@@ -21,9 +44,7 @@ const Hero = () => {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="text-lg md:text-xl text-slate mb-8"
         >
-          With over 10 years of experience in building scalable applications using Java,
-          Angular, React, and AWS services. Specialized in microservices architecture
-          and cloud-native solutions.
+          {profile?.summary || "Loading profile summary..."}
         </motion.p>
 
         <motion.div

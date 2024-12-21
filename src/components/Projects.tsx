@@ -1,40 +1,30 @@
 import { motion } from "framer-motion";
 import { ExternalLink, Github } from "lucide-react";
-
-const projects = [
-  {
-    title: "E-Commerce Platform",
-    company: "Major Retail Client",
-    role: "Sr. Full Stack Developer",
-    description:
-      "Led the development of a scalable e-commerce platform handling millions of transactions. Implemented microservices architecture using Spring Boot and Angular.",
-    technologies: ["Java", "Spring Boot", "Angular", "AWS", "MongoDB"],
-    githubUrl: "#",
-    liveUrl: "#",
-  },
-  {
-    title: "Banking System",
-    company: "Financial Institution",
-    role: "Technical Lead",
-    description:
-      "Developed a secure banking system with real-time transaction processing. Implemented OAuth2 security and handled high-concurrency scenarios.",
-    technologies: ["Java", "Spring Security", "React", "AWS Lambda", "PostgreSQL"],
-    githubUrl: "#",
-    liveUrl: "#",
-  },
-  {
-    title: "IoT Analytics Platform",
-    company: "Tech Startup",
-    role: "Sr. Full Stack Developer",
-    description:
-      "Built an IoT analytics platform processing data from thousands of devices. Implemented real-time data processing using AWS services.",
-    technologies: ["Python", "React", "AWS IoT", "Kubernetes", "Elasticsearch"],
-    githubUrl: "#",
-    liveUrl: "#",
-  },
-];
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Projects = () => {
+  const { data: projects, isLoading } = useQuery({
+    queryKey: ["projects"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .order("created_at", { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-navy flex items-center justify-center">
+        <div className="text-lightSlate">Loading projects...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-navy py-20 px-6">
       <div className="max-w-7xl mx-auto">
@@ -47,9 +37,9 @@ const Projects = () => {
         </motion.h2>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((project, index) => (
+          {projects?.map((project, index) => (
             <motion.div
-              key={project.title}
+              key={project.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.2 }}
@@ -59,7 +49,7 @@ const Projects = () => {
                 <h3 className="text-xl text-lightestSlate">{project.title}</h3>
                 <div className="flex gap-3">
                   <a
-                    href={project.githubUrl}
+                    href="#"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-lightSlate hover:text-green transition-colors"
@@ -67,7 +57,7 @@ const Projects = () => {
                     <Github size={20} />
                   </a>
                   <a
-                    href={project.liveUrl}
+                    href="#"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-lightSlate hover:text-green transition-colors"
@@ -78,7 +68,7 @@ const Projects = () => {
               </div>
 
               <p className="text-green mb-2">{project.role}</p>
-              <p className="text-slate mb-4">{project.company}</p>
+              <p className="text-slate mb-4">{project.client_name}</p>
               <p className="text-lightSlate mb-4">{project.description}</p>
 
               <div className="flex flex-wrap gap-2">
